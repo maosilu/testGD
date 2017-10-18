@@ -121,3 +121,95 @@ function waterText($filename, $fontfile, $text='小美美beautiful', $dest='wate
 	return $destination;
 }
 
+/**
+实现给图片添加图片水印的效果
+@param   string   $srcName      水印图片路径
+@param   string   $dstName      目标图片路径
+@param   int      $position     水印图片的显示位置
+@param   int      $pct          水印图片透明度
+@param   string   $dest         目标图片的存储文件夹
+$param   string   $pre          目标图片命名前缀
+@param   bool     $delSource    是否删除源文件，默认否，不删除
+@return  string   $destination  添加图片水印后图片的保存路径
+*/
+function waterPic($srcName, $dstName, $position=0, $pct=50, $dest='waterPic', $pre='waterPic_', $delSource=false){
+	$srcInfo = getImageInfo($srcName);
+	$dstInfo = getImageInfo($dstName);
+	$dst_im = $dstInfo['createFun']($dstName);
+	$src_im = $srcInfo['createFun']($srcName);
+	$src_w = $srcInfo['width'];
+	$src_h = $srcInfo['height'];
+
+	switch($position){
+		case 0:
+		$dst_x = 0;
+		$dst_y = 0;
+		break;
+		case 1:
+		$dst_x = ($dstInfo['width']-$srcInfo['width'])/2;
+		$dst_y = 0;
+		break;
+		case 2:
+		$dst_x = $dstInfo['width']-$srcInfo['width'];
+		$dst_y = 0;
+		break;
+		case 3:
+		$dst_x = 0;
+		$dst_y = ($dstInfo['height']-$srcInfo['height'])/2;
+		break;
+		case 4:
+		$dst_x = ($dstInfo['width']-$srcInfo['width'])/2;
+		$dst_y = ($dstInfo['height']-$srcInfo['height'])/2;
+		break;
+		case 5:
+		$dst_x = $dstInfo['width']-$srcInfo['width'];
+		$dst_y = ($dstInfo['height']-$srcInfo['height'])/2;
+		break;
+		case 6:
+		$dst_x = 0;
+		$dst_y = $dstInfo['height']-$srcInfo['height'];
+		break;
+		case 7:
+		$dst_x = ($dstInfo['width']-$srcInfo['width'])/2;
+		$dst_y = $dstInfo['height']-$srcInfo['height'];
+		break;
+		case 8:
+		$dst_x = $dstInfo['width']-$srcInfo['width'];
+		$dst_y = $dstInfo['height']-$srcInfo['height'];
+		break;
+		default :
+		$dst_x = 0;
+		$dst_y = 0;
+		break;
+	}
+
+	
+	imagecopymerge($dst_im, $src_im, $dst_x, $dst_y, 0, 0, $src_w, $src_h, $pct);
+
+	if($dest && !file_exists($dest)){
+		mkdir($dest, 0777, true);
+	}
+
+	$randNum = mt_rand(100000, 999999);
+	$destName = "{$pre}{$randNum}".$dstInfo['ext'];
+	$destination = $dest ? $dest.'/'.$destName : $destName;
+	$dstInfo['outFun']($dst_im, $destination);
+
+	imagedestroy($dst_im);
+	imagedestroy($src_im);
+
+	if($delSource){
+		@unlink($srcName);
+		@unlink($dstName);
+	}
+
+	return $destination;
+}
+
+
+
+
+
+
+
+
