@@ -140,6 +140,7 @@ function waterPic($srcName, $dstName, $position=0, $pct=50, $dest='waterPic', $p
 	$src_w = $srcInfo['width'];
 	$src_h = $srcInfo['height'];
 
+	//计算添加图片水印的位置
 	switch($position){
 		case 0:
 		$dst_x = 0;
