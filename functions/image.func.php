@@ -75,3 +75,49 @@ function thumb($filename, $percent=0.5, $dst_w=null, $dst_h=null, $dest='thumb',
 
 	return $destination;
 }
+
+/**
+添加图片文字水印的函数
+@param string   $filename      文件路径
+@param   string   $fontfile    字体文件路径
+@param   string   $text        需要显示的水印字体
+@param   string   $dest        水印图片最终保存的路径 
+@param   string   $pre         保存图片的名称前缀
+@param   bool     $delSource   是否删除源文件，默认是false，不删除
+@param   int      $red         画笔的颜色，跟以下两个组成rgb
+@param   int      $green       画笔的颜色
+@param   int      $blue        画笔的颜色
+@param   int      $alpha       文字水印的透明度
+@param   int      $size        文字水印字体大小
+@oaram   int      $angle       文字水印字体旋转角度
+@param   int      $x           文字水印x轴起始位置
+@param   int      $y           文字水印y轴起始位置
+@return  string   $destination 文字水印图片的保存路径
+*/
+function waterText($filename, $fontfile, $text='小美美beautiful', $dest='waterText', $pre='waterText_', $delSource=false, $red=255, $green=0, $blue=0, $alpha=60, $size=30, $angle=0, $x=0, $y=30){
+	
+	$fileInfo = getImageInfo($filename);
+
+	$image = $fileInfo['createFun']($filename);
+	$color = imagecolorallocatealpha($image, $red, $green, $blue, $alpha);
+	imagettftext($image, $size, $angle, $x, $y, $color, $fontfile, $text);
+
+	if($dest && !file_exists($dest)){
+		mkdir($dest, 0777, true);
+	}
+	
+	$randNum = mt_rand(100000, 999999);
+	$dstName = "{$pre}{$randNum}".$fileInfo['ext'];
+	$destination = $dest ? $dest.'/'.$dstName : $dstName;
+	$fileInfo['outFun']($image, $destination);
+
+	imagedestroy($image);
+
+	//是否删除源文件，默认不删除
+	if($delSource){
+		@unlink($filename);
+	}
+
+	return $destination;
+}
+
